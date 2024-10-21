@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'SettingsScreen.dart';
 
+//
 class NoughtsAndCrossesGame extends StatefulWidget {
   @override
   _NoughtsAndCrossesGameState createState() => _NoughtsAndCrossesGameState();
 }
 
+// Class representing N&C game, creates board and handles cell taps by player
 class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
+  String difficulty = "PvP";
+
   List<List<String>> board = [];
   String playerToken = 'X';
   String computerToken = 'O';
@@ -14,10 +19,11 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
   @override
   void initState() {
     super.initState();
-    initializeGame();
+    initialiseGame();
   }
 
-  void initializeGame() {
+  // Create game board by initialising
+  void initialiseGame() {
     board = List.generate(3, (_) => List.filled(3, ''));
     currentPlayer = playerToken;
     setState(() {
@@ -75,26 +81,43 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Game Over'),
-        content: Text(winner == 'Draw' ? 'It\'s a draw!' : 'Player $winner wins!'),
+        title: Text('GAME OVER'),
+        content: Text(winner == 'Draw' ? 'DRAW' : '$winner WINS!'),
         actions: [
           TextButton(
             onPressed: () {
-              resetGame();
+              newGame();
               Navigator.pop(context);
             },
-            child: Text('Play Again'),
+            child: Text('NEW GAME'),
           ),
         ],
       ),
     );
   }
 
-  void resetGame() {
+  void newGame() {
     setState(() {
-      initializeGame();
+      initialiseGame();
     });
   }
+
+  void goToSettings() {
+    setState(() {
+        print("Settings button pressed");
+    });
+  }
+
+// TODO: Implement as switch on Settings page
+//   void toggleDifficulty() {
+//     if (difficulty == "PvP") {
+//         difficulty = "Computer";
+//     } else {
+//         difficulty = "PvP";
+//     }
+//
+//     print("Difficulty = " + difficulty);
+//   }
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +128,8 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
+
+          // Padding child of Column, shows Current Player at top of screen
           Padding(
             padding: const EdgeInsets.all(28.0),
             child: Text(
@@ -112,6 +137,8 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
               style: TextStyle(fontSize: 24),
             ),
           ),
+
+          // Expanded child of Column, show game board
           Expanded(
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -138,13 +165,25 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
               },
             ),
           ),
+
+          // Padding child of Column, Settings button at bottom
           Padding(
-            padding: const EdgeInsets.all(18.0),
+            padding: const EdgeInsets.all(20.0),
             child: ElevatedButton(
-              onPressed: resetGame,
-              child: Text('Reset Game'),
+              onPressed: goToSettings,
+              child: Text('SETTINGS'),
             ),
           ),
+
+          // Padding child of Column, New Game button at bottom
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: ElevatedButton(
+              onPressed: newGame,
+              child: Text('NEW GAME'),
+            ),
+          ),
+
         ],
       ),
     );
