@@ -6,7 +6,7 @@ import 'SettingsScreen.dart';
 void main() {
   runApp(MaterialApp(
     title: 'NOUGHTS & CROSSES',
-    home: GameScreen(),
+    home: NoughtsAndCrossesGame(),
     ));
 }
 

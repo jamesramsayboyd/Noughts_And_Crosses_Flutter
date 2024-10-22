@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'GameScreen.dart';
+import 'GameSettings.dart' as game_settings;
 
 class ReturnToGameRoute extends StatelessWidget {
   const ReturnToGameRoute({super.key});
 
   void toggleDifficulty() {
-    if (difficulty == "PvP") {
-        difficulty = "Computer";
-    } else {
-        difficulty = "PvP";
-    }
-
-    print("Difficulty = " + difficulty);
+    // game_settings.difficulty;
+    // if (difficulty == "PvP") {
+    //     difficulty = "Computer";
+    // } else {
+    //     difficulty = "PvP";
+    // }
+    //
+    // print("Difficulty = " + difficulty);
+    print("Toggle difficulty");
   }
 
   @override

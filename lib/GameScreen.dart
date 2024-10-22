@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'SettingsScreen.dart';
+import 'GameSettings.dart';
 
 class GameScreen extends StatelessWidget {
   const GameScreen({super.key});
-
-  const difficulty = "PvP";
 
   void newGame() {
     print("New Game button pressed");
@@ -40,7 +39,16 @@ class GameScreen extends StatelessWidget {
             padding: const EdgeInsets.all(20.0),
             child: ElevatedButton(
               onPressed: newGame,
-              child: Text('NEW GAME'),
+              child: Text('NEW GAME (COMPUTER)'),
+            ),
+          ),
+
+          // Child of Column, New Game button reinitialising game
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: ElevatedButton(
+              onPressed: newGame,
+              child: Text('NEW GAME (PvP)'),
             ),
           ),
 

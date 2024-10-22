@@ -1,3 +1,10 @@
-library game.globals;
+import 'package:flutter/material.dart';
+import 'game.dart';
+import 'GameScreen.dart';
+import 'SettingsScreen.dart';
 
-String difficulty = "PvP";
+// Library of variables storing game settings, e.g. difficulty, PvP/PvComputer, etc
+
+class GameSettings {
+  String difficulty = "PvP";
+}

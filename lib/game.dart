@@ -9,7 +9,7 @@ class NoughtsAndCrossesGame extends StatefulWidget {
 
 // Class representing N&C game, creates board and handles cell taps by player
 class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
-  String difficulty = "PvP";
+  bool computerOpponent = false;
 
   List<List<String>> board = [];
   String playerToken = 'X';
@@ -22,12 +22,18 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     initialiseGame();
   }
 
-  // Create game board by initialising
   void initialiseGame() {
     board = List.generate(3, (_) => List.filled(3, ''));
     currentPlayer = playerToken;
     setState(() {
 
+    });
+  }
+
+  // Starts a new player vs. player game
+  void newGame() {
+    setState(() {
+      initialiseGame();
     });
   }
 
@@ -89,35 +95,20 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
               newGame();
               Navigator.pop(context);
             },
-            child: Text('NEW GAME'),
+            child: Text('NEW GAME (COMPUTER)'),
+          ),
+          TextButton(
+            onPressed: () {
+              newGame();
+              Navigator.pop(context);
+            },
+            child: Text('NEW GAME (PvP)'),
           ),
         ],
       ),
     );
   }
 
-  void newGame() {
-    setState(() {
-      initialiseGame();
-    });
-  }
-
-  void goToSettings() {
-    setState(() {
-        print("Settings button pressed");
-    });
-  }
-
-// TODO: Implement as switch on Settings page
-//   void toggleDifficulty() {
-//     if (difficulty == "PvP") {
-//         difficulty = "Computer";
-//     } else {
-//         difficulty = "PvP";
-//     }
-//
-//     print("Difficulty = " + difficulty);
-//   }
 
   @override
   Widget build(BuildContext context) {
@@ -125,11 +116,12 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
       appBar: AppBar(
         title: Text('NOUGHTS & CROSSES'),
       ),
+
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
 
-          // Padding child of Column, shows Current Player at top of screen
+          // Text child of Column, shows Current Player at top of screen in PvP mode
           Padding(
             padding: const EdgeInsets.all(28.0),
             child: Text(
@@ -170,8 +162,11 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: ElevatedButton(
-              onPressed: goToSettings,
-              child: Text('SETTINGS'),
+              onPressed: () {
+                computerOpponent = true;
+                newGame();
+              },
+                child: Text('NEW GAME (COMPUTER)'),
             ),
           ),
 
@@ -179,8 +174,11 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: ElevatedButton(
-              onPressed: newGame,
-              child: Text('NEW GAME'),
+              onPressed: () {
+                computerOpponent = false;
+                newGame();
+              },
+              child: Text('NEW GAME (PvP'),
             ),
           ),
 
