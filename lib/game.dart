@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:core';
-import 'SettingsScreen.dart';
 
 //
 class NoughtsAndCrossesGame extends StatefulWidget {
@@ -210,6 +209,17 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     return 0;
   }
 
+  // Iterates through list of potential three-in-a-row connections. If a complete row
+  // all filled with the same token are found, returns that token (used to determine winner)
+  String identifyCompleteThreeInARow() {
+    for (var line in threeInARowConnections) {
+      if (board[line[0]] == board[line[1]] && board[line[0]] == board[line[2]]) {
+        return getCellToken(line[0]);
+      }
+    }
+    return '';
+  }
+
   // Iterates through list of potential two-rows-of-two connections. If first three
   // cells are filled and fourth is empty, return fourth cell number
   int identifyTwoRowsOfTwo() {
@@ -290,29 +300,33 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
   }
 
   String identifyWinOrDraw() {
-    // Loop through all three rows
-    for (int i = 0; i < 3; i++) {
-      // Looking for horizontal three-in-a-row connections
-      if (board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0].isNotEmpty) {
-        gameOver = true;
-        return board[i][0]; // Return token of three-in-a-row
-      }
-      // Looking for vertical three-in-a-row connections
-      if (board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[0][i].isNotEmpty) {
-        gameOver = true;
-        return board[0][i];
-      }
-    }
-    // Diagonal top left to bottom right
-    if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0].isNotEmpty) {
+    if (identifyCompleteThreeInARow().isNotEmpty) {
       gameOver = true;
-      return board[0][0];
+      return identifyCompleteThreeInARow();
     }
-    // Diagonal top right to bottom left
-    if (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2].isNotEmpty) {
-      gameOver = true;
-      return board[0][2];
-    }
+    // // Loop through all three rows
+    // for (int i = 0; i < 3; i++) {
+    //   // Looking for horizontal three-in-a-row connections
+    //   if (board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0].isNotEmpty) {
+    //     gameOver = true;
+    //     return board[i][0]; // Return token of three-in-a-row
+    //   }
+    //   // Looking for vertical three-in-a-row connections
+    //   if (board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[0][i].isNotEmpty) {
+    //     gameOver = true;
+    //     return board[0][i];
+    //   }
+    // }
+    // // Diagonal top left to bottom right
+    // if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0].isNotEmpty) {
+    //   gameOver = true;
+    //   return board[0][0];
+    // }
+    // // Diagonal top right to bottom left
+    // if (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2].isNotEmpty) {
+    //   gameOver = true;
+    //   return board[0][2];
+    // }
 
     // Reach here if no three-in-a-row connection is found
     gameOver = true;
