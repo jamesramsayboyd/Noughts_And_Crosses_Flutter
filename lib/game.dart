@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:core';
 import 'SettingsScreen.dart';
 
 //
@@ -19,6 +20,45 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
   String playerToken = 'X';
   String computerToken = 'O';
   String currentPlayer = '';
+
+  List<List<int>> threeInARowConnections = [
+    // Horizontals
+    [1, 2, 3],
+    [1, 3, 2],
+    [2, 3, 1],
+    [4, 5, 6],
+    [4, 6, 5],
+    [5, 6, 4],
+    [7, 8, 9],
+    [7, 9, 8],
+    [8, 9, 7],
+    // Verticals
+    [1, 4, 7],
+    [1, 7, 4],
+    [4, 7, 1],
+    [2, 5, 8],
+    [2, 8, 5],
+    [5, 8, 2],
+    [3, 6, 9],
+    [3, 9, 6],
+    [6, 9, 3],
+    // Diagonals:
+    [1, 5, 9],
+    [1, 9, 5],
+    [5, 9, 1],
+    [3, 5, 7],
+    [3, 7, 5],
+    [5, 7, 3],
+  ];
+
+  List<List<int>> cornerCellPairs = [
+    [1, 9],
+    [3, 7],
+    [7, 3],
+    [9, 1]
+  ];
+
+  List<int> cornerCells = [1, 3, 7, 9];
 
   @override
   void initState() {
@@ -136,28 +176,62 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     }
   }
 
-  String identifyTwoInARow() {
-    // if (board[0][0] == board[0][1]) {
-    //   print("Two in a row at 1, 2");
-    //   return(List<int>)
-    //   fillCell(0, 2);
-    // }
-    return "identifyTwoInARow() function called";
+  // Iterates through list of potential three-in-a-row connections. If first two
+  // cells are filled with the same token and third cell is empty, returns third cell number
+  int identifyTwoInARow() {
+    for (var line in threeInARowConnections) {
+      if (board[line[0]] == board[line[1]] && board[line[3]].isEmpty) {
+        return line[2];
+      }
+    }
+    return 0;
+  }
+
+  // Iterates through list of corner cell pairs. If one corner is filled and the other
+  // opposite corner cell is empty, returns that empty corner cell number
+  int identifyOppositeCornerCell() {
+    for (var line in cornerCellPairs) {
+      if (board[line[0]].isNotEmpty && board[line[1]].isEmpty) {
+        return line[1];
+      }
+    }
+    return 0;
+  }
+
+  // Iterates through list of corner cells. If one is free, returns that cell number
+  int identifyFreeCornerCell() {
+    for (var cell in cornerCells) {
+      if (getCellToken(cell).isEmpty) {
+        return cell;
+      }
+    }
+    return 0;
   }
 
   void computerTurnHard() {
-    print("Computer making move...");
-
     // HARD MODE LOGIC TAKEN FROM ASSIGNMENT DOCUMENT:
     // If any player has two in a row, play the remaining square
-    if (identifyTwoInARow().isNotEmpty) {
-
+    if (identifyTwoInARow() != 0) {
+      fillCell(identifyTwoInARow());
     }
     // Else if you can create two lines of two, play that move
+    // TODO
     // Else if centre is free (i.e. cell 5), play there
+    else if (getCellToken(5).isEmpty) {
+      fillCell(5);
+    }
     // Else if player 1 has played in a corner, play opposite corner
+    else if (identifyOppositeCornerCell() != 0) {
+      fillCell(identifyOppositeCornerCell());
+    }
     // Else if there is a free corner, play there
+    else if (identifyFreeCornerCell() != 0) {
+      fillCell(identifyFreeCornerCell());
+    }
     // Else play any empty square
+    else {
+      computerTurnEasy();
+    }
   }
 
   // Event handler for a board cell being tapped
