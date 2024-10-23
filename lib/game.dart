@@ -217,7 +217,6 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
   String identifyCompleteThreeInARow() {
     for (var line in threeInARowConnections) {
       if (getCellToken(line[0]) == getCellToken(line[1]) && getCellToken(line[0]) == getCellToken(line[2])) {
-      // if (board[line[0]] == board[line[1]] && board[line[0]] == board[line[2]]) {
         return getCellToken(line[0]);
       }
     }
@@ -228,7 +227,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
   // cells are filled and fourth is empty, return fourth cell number
   int identifyTwoRowsOfTwo() {
     for (var block in twoRowsOfTwoConnections) {
-      if (getCellToken(block[0]).isNotEmpty && getCellToken(board[1]).isNotEmpty && getCellToken(board[2]).isNotEmpty && getCellToken(board[3]).isEmpty) {
+      if (getCellToken(block[0]).isNotEmpty && getCellToken(block[1]).isNotEmpty && getCellToken(block[2]).isNotEmpty && getCellToken(block[3]).isEmpty) {
         return block[3];
       }
     }
@@ -264,10 +263,10 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
       fillCell(identifyTwoInARow());
     }
     // Else if you can create two lines of two, play that move
-    // else if (identifyTwoRowsOfTwo() != 0) {
-    //   print("Hard Logic: Identified potential two rows of two");
-    //   fillCell(identifyTwoRowsOfTwo());
-    // }
+    else if (identifyTwoRowsOfTwo() != 0) {
+      print("Hard Logic: Identified potential two rows of two");
+      fillCell(identifyTwoRowsOfTwo());
+    }
     // Else if centre is free (i.e. cell 5), play there
     else if (getCellToken(5).isEmpty) {
       print("Hard Logic: Identified empty centre cell");
@@ -292,7 +291,6 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
 
   // Event handler for a board cell being tapped
   void onCellTapped(int row, int col) {
-    print("Cell tapped: " + row.toString() + ", " + col.toString() + ".");
     if (board[row][col].isEmpty) {
       setState(() {
         board[row][col] = currentPlayer;
@@ -306,7 +304,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
       }
     }
 
-    print("About to check gameOver bool, gameOver = " + gameOver.toString());
+    // Computer move is called here, if computerOpponent flag is true and game is not over
     if (computerOpponent && !gameOver) {
       computerTurnHard();
     }
@@ -348,6 +346,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
         actions: [
           TextButton(
             onPressed: () {
+              computerOpponent = true;
               newGame();
               Navigator.pop(context);
             },
@@ -355,6 +354,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
           ),
           TextButton(
             onPressed: () {
+              computerOpponent = false;
               newGame();
               Navigator.pop(context);
             },
