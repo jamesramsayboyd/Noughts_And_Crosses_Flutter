@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'SettingsScreen.dart';
 
 //
@@ -9,8 +10,11 @@ class NoughtsAndCrossesGame extends StatefulWidget {
 
 // Class representing N&C game, creates board and handles cell taps by player
 class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
+  // Variable tracking game difficulty, true = Computer Hard mode, false = Player vs. Player
   bool computerOpponent = false;
+  bool gameOver = false;
 
+  // List of Lists representing the game board, 3x3 empty strings
   List<List<String>> board = [];
   String playerToken = 'X';
   String computerToken = 'O';
@@ -22,12 +26,76 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     initialiseGame();
   }
 
+  // Reset game board to initial state, Clear the game board
   void initialiseGame() {
+    gameOver = false;
     board = List.generate(3, (_) => List.filled(3, ''));
     currentPlayer = playerToken;
     setState(() {
 
     });
+  }
+
+  bool isCellEmpty(cell) {
+    List<int> coordinates = translateCellNumberToCoordinates(cell);
+    if (board[coordinates[0]][coordinates[1]].isEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  String getCellToken(cell) {
+    List<int> coordinates = translateCellNumberToCoordinates(cell);
+    return board[coordinates[0]][coordinates[1]];
+  }
+
+  int translateCoordinatesToCellNumber(x, y) {
+    if (x == 0 && y == 0) {
+      return 1;
+    } else if (x == 0 && y == 1) {
+      return 2;
+    } else if (x == 0 && y == 2) {
+      return 3;
+    } else if (x == 1 && y == 0) {
+      return 4;
+    } else if (x == 1 && y == 1) {
+      return 5;
+    } else if (x == 1 && y == 2) {
+      return 6;
+    } else if (x == 2 && y == 0) {
+      return 7;
+    } else if (x == 2 && y == 1) {
+      return 8;
+    } else if (x == 2 && y == 2) {
+      return 9;
+    } else {
+      return 0;
+    }
+  }
+
+  List<int> translateCellNumberToCoordinates(cell) {
+    if (cell == 1) {
+      return [0, 0];
+    } else if (cell == 2) {
+      return [0, 1];
+    } else if (cell == 3) {
+      return [0, 2];
+    } else if (cell == 4) {
+      return [1, 0];
+    } else if (cell == 5) {
+      return [1, 1];
+    } else if (cell == 6) {
+      return [1, 2];
+    } else if (cell == 7) {
+      return [2, 0];
+    } else if (cell == 8) {
+      return [2, 1];
+    } else if (cell == 9) {
+      return [2, 1];
+    } else {
+      return [0, 0];
+    }
   }
 
   // Starts a new player vs. player game
@@ -37,6 +105,62 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     });
   }
 
+  void fillCell(cell) {
+    if (isCellEmpty(cell)) {
+      List<int> coordinates = translateCellNumberToCoordinates(cell);
+      board[coordinates[0]][coordinates[1]] = currentPlayer;
+      currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+
+      String winner = identifyWinOrDraw();
+      if (winner.isNotEmpty) {
+        showEndOfGameDialog(winner);
+      }
+    } else {
+      print("Couldn't fill cell");
+    }
+  }
+
+  void computerTurnEasy() {
+    print("Easy computer move...");
+    // Generate random number
+    // Check that cell with that number is not filled
+    // If not, fill that cell
+
+    var random = Random();
+    while (true) {
+      int randomCell = random.nextInt(8) + 1; // from 1 up to 9
+      if (isCellEmpty(randomCell)) {
+        fillCell(randomCell);
+        break;
+      }
+    }
+  }
+
+  String identifyTwoInARow() {
+    // if (board[0][0] == board[0][1]) {
+    //   print("Two in a row at 1, 2");
+    //   return(List<int>)
+    //   fillCell(0, 2);
+    // }
+    return "identifyTwoInARow() function called";
+  }
+
+  void computerTurnHard() {
+    print("Computer making move...");
+
+    // HARD MODE LOGIC TAKEN FROM ASSIGNMENT DOCUMENT:
+    // If any player has two in a row, play the remaining square
+    if (identifyTwoInARow().isNotEmpty) {
+
+    }
+    // Else if you can create two lines of two, play that move
+    // Else if centre is free (i.e. cell 5), play there
+    // Else if player 1 has played in a corner, play opposite corner
+    // Else if there is a free corner, play there
+    // Else play any empty square
+  }
+
+  // Event handler for a board cell being tapped
   void onCellTapped(int row, int col) {
     if (board[row][col].isEmpty) {
       setState(() {
@@ -44,46 +168,66 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
         currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
       });
 
-      String winner = checkForWinner();
+      String winner = identifyWinOrDraw();
       if (winner.isNotEmpty) {
-        showWinnerDialog(winner);
+        showEndOfGameDialog(winner);
       }
+    }
+
+    if (computerOpponent) {
+      computerTurnEasy();
     }
   }
 
-  String checkForWinner() {
+  String identifyWinOrDraw() {
+    // Loop through all three rows
     for (int i = 0; i < 3; i++) {
+      // Looking for horizontal three-in-a-row connections
       if (board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0].isNotEmpty) {
-        return board[i][0];
+        gameOver = true;
+        return board[i][0]; // Return token of three-in-a-row
       }
+      // Looking for vertical three-in-a-row connections
       if (board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[0][i].isNotEmpty) {
+        gameOver = true;
         return board[0][i];
       }
     }
+    // Diagonal top left to bottom right
     if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0].isNotEmpty) {
+      gameOver = true;
       return board[0][0];
     }
+    // Diagonal top right to bottom left
     if (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2].isNotEmpty) {
+      gameOver = true;
       return board[0][2];
     }
 
+    // Reach here if no three-in-a-row connection is found
+    gameOver = true;
     bool isDraw = true;
+
+    // Loop through board to ensure that all cells are filled
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
         if (board[i][j].isEmpty) {
+          // Can't be draw if any cells are unfilled
           isDraw = false;
           break;
         }
       }
     }
+    // Return draw if all cells are filled and no three-in-a-row connection is made
     if (isDraw) {
       return 'Draw';
     }
 
+    // Shouldn't reach here
     return '';
   }
 
-  void showWinnerDialog(String winner) {
+  void showEndOfGameDialog(String winner) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -121,7 +265,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
 
-          // Text child of Column, shows Current Player at top of screen in PvP mode
+          // Text showing Current Player at top of screen in PvP mode
           Padding(
             padding: const EdgeInsets.all(28.0),
             child: Text(
@@ -130,7 +274,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
             ),
           ),
 
-          // Expanded child of Column, show game board
+          // Gridview to represent 3x3 game board
           Expanded(
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -140,6 +284,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
               itemBuilder: (context, index) {
                 final row = index ~/ 3;
                 final col = index % 3;
+                // Use GestureDetector widget to listen for screen tap events
                 return GestureDetector(
                   onTap: () => onCellTapped(row, col),
                   child: Container(
@@ -158,7 +303,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
             ),
           ),
 
-          // Padding child of Column, Settings button at bottom
+          // Button to start a new game against the computer
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: ElevatedButton(
@@ -170,7 +315,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
             ),
           ),
 
-          // Padding child of Column, New Game button at bottom
+          // Button to start a new game, player vs. player
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: ElevatedButton(
