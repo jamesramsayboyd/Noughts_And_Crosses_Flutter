@@ -98,20 +98,22 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     });
   }
 
+  // Returns true if cell parameter has empty string value, false if not empty
   bool isCellEmpty(cell) {
-    List<int> coordinates = translateCellNumberToCoordinates(cell);
-    if (board[coordinates[0]][coordinates[1]].isEmpty) {
+    if (getCellToken(cell).isEmpty) {
       return true;
     } else {
       return false;
     }
   }
 
+  // Returns cell token when given cell number as parameter
   String getCellToken(cell) {
     List<int> coordinates = translateCellNumberToCoordinates(cell);
     return board[coordinates[0]][coordinates[1]];
   }
 
+  // Takes x and y coordinates as parameters and returns corresponding cell number 1-9
   int translateCoordinatesToCellNumber(x, y) {
     if (x == 0 && y == 0) {
       return 1;
@@ -136,6 +138,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     }
   }
 
+  // Takes cell number and returns corresponding x and y coordinates as List<int>
   List<int> translateCellNumberToCoordinates(cell) {
     if (cell == 1) {
       return [0, 0];
@@ -154,7 +157,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     } else if (cell == 8) {
       return [2, 1];
     } else if (cell == 9) {
-      return [2, 1];
+      return [2, 2];
     } else {
       return [0, 0];
     }
@@ -167,6 +170,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     });
   }
 
+  // Fills cell provided as parameter with current player's token
   void fillCell(cell) {
     if (isCellEmpty(cell)) {
       List<int> coordinates = translateCellNumberToCoordinates(cell);
@@ -182,18 +186,15 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     }
   }
 
+  // Generates a random number and, if the corresponding cell is empty, fills it
+  // with the current player's token
   void computerTurnEasy() {
-    print("Easy computer move...");
-    // Generate random number
-    // Check that cell with that number is not filled
-    // If not, fill that cell
-
     var random = Random();
     while (true) {
-      int randomCell = random.nextInt(8) + 1; // from 1 up to 9
+      int randomCell = random.nextInt(9) + 1; // from 1 up to 9 (0 to 8 + 1)
       if (isCellEmpty(randomCell)) {
         fillCell(randomCell);
-        break;
+        return;
       }
     }
   }
@@ -202,8 +203,10 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
   // cells are filled with the same token and third cell is empty, returns third cell number
   int identifyTwoInARow() {
     for (var line in threeInARowConnections) {
-      if (board[line[0]] == board[line[1]] && board[line[3]].isEmpty) {
-        return line[2];
+      if (getCellToken(line[0]).isNotEmpty) {
+        if (getCellToken(line[0]) == getCellToken(line[1]) && getCellToken(line[2]).isEmpty) {
+          return line[2];
+        }
       }
     }
     return 0;
@@ -213,7 +216,8 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
   // all filled with the same token are found, returns that token (used to determine winner)
   String identifyCompleteThreeInARow() {
     for (var line in threeInARowConnections) {
-      if (board[line[0]] == board[line[1]] && board[line[0]] == board[line[2]]) {
+      if (getCellToken(line[0]) == getCellToken(line[1]) && getCellToken(line[0]) == getCellToken(line[2])) {
+      // if (board[line[0]] == board[line[1]] && board[line[0]] == board[line[2]]) {
         return getCellToken(line[0]);
       }
     }
@@ -224,7 +228,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
   // cells are filled and fourth is empty, return fourth cell number
   int identifyTwoRowsOfTwo() {
     for (var block in twoRowsOfTwoConnections) {
-      if (board[block[0]].isNotEmpty && board[block[1]].isNotEmpty && board[block[2]].isNotEmpty && board[block[3]].isEmpty) {
+      if (getCellToken(block[0]).isNotEmpty && getCellToken(board[1]).isNotEmpty && getCellToken(board[2]).isNotEmpty && getCellToken(board[3]).isEmpty) {
         return block[3];
       }
     }
@@ -235,7 +239,7 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
   // opposite corner cell is empty, returns that empty corner cell number
   int identifyOppositeCornerCell() {
     for (var line in cornerCellPairs) {
-      if (board[line[0]].isNotEmpty && board[line[1]].isEmpty) {
+      if (getCellToken(line[0]).isNotEmpty && getCellToken(line[1]).isEmpty) {
         return line[1];
       }
     }
@@ -256,32 +260,39 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     // HARD MODE LOGIC TAKEN FROM ASSIGNMENT DOCUMENT:
     // If any player has two in a row, play the remaining square
     if (identifyTwoInARow() != 0) {
+      print("Hard Logic: Identified potential three in a row");
       fillCell(identifyTwoInARow());
     }
     // Else if you can create two lines of two, play that move
-    else if (identifyTwoRowsOfTwo() != 0) {
-      fillCell(identifyTwoRowsOfTwo());
-    }
+    // else if (identifyTwoRowsOfTwo() != 0) {
+    //   print("Hard Logic: Identified potential two rows of two");
+    //   fillCell(identifyTwoRowsOfTwo());
+    // }
     // Else if centre is free (i.e. cell 5), play there
     else if (getCellToken(5).isEmpty) {
+      print("Hard Logic: Identified empty centre cell");
       fillCell(5);
     }
     // Else if player 1 has played in a corner, play opposite corner
     else if (identifyOppositeCornerCell() != 0) {
+      print("Hard Logic: Identified played corner cell, playing opposite");
       fillCell(identifyOppositeCornerCell());
     }
     // Else if there is a free corner, play there
     else if (identifyFreeCornerCell() != 0) {
+      print("Hard Logic: Identified free corner cell");
       fillCell(identifyFreeCornerCell());
     }
     // Else play any empty square
     else {
+      print("Hard Logic: Playing random empty square");
       computerTurnEasy();
     }
   }
 
   // Event handler for a board cell being tapped
   void onCellTapped(int row, int col) {
+    print("Cell tapped: " + row.toString() + ", " + col.toString() + ".");
     if (board[row][col].isEmpty) {
       setState(() {
         board[row][col] = currentPlayer;
@@ -290,46 +301,23 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
 
       String winner = identifyWinOrDraw();
       if (winner.isNotEmpty) {
+        gameOver = true;
         showEndOfGameDialog(winner);
       }
     }
 
-    if (computerOpponent) {
-      computerTurnEasy();
+    print("About to check gameOver bool, gameOver = " + gameOver.toString());
+    if (computerOpponent && !gameOver) {
+      computerTurnHard();
     }
   }
 
   String identifyWinOrDraw() {
     if (identifyCompleteThreeInARow().isNotEmpty) {
-      gameOver = true;
       return identifyCompleteThreeInARow();
     }
-    // // Loop through all three rows
-    // for (int i = 0; i < 3; i++) {
-    //   // Looking for horizontal three-in-a-row connections
-    //   if (board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0].isNotEmpty) {
-    //     gameOver = true;
-    //     return board[i][0]; // Return token of three-in-a-row
-    //   }
-    //   // Looking for vertical three-in-a-row connections
-    //   if (board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[0][i].isNotEmpty) {
-    //     gameOver = true;
-    //     return board[0][i];
-    //   }
-    // }
-    // // Diagonal top left to bottom right
-    // if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0].isNotEmpty) {
-    //   gameOver = true;
-    //   return board[0][0];
-    // }
-    // // Diagonal top right to bottom left
-    // if (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2].isNotEmpty) {
-    //   gameOver = true;
-    //   return board[0][2];
-    // }
 
     // Reach here if no three-in-a-row connection is found
-    gameOver = true;
     bool isDraw = true;
 
     // Loop through board to ensure that all cells are filled
