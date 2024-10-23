@@ -51,6 +51,29 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     [5, 7, 3],
   ];
 
+  List<List<int>> twoRowsOfTwoConnections = [
+    // 1, 2, 4, 5 permutations
+    [1, 2, 4, 5],
+    [2, 4, 5, 1],
+    [4, 5, 1, 2],
+    [5, 1, 2, 4],
+    // 2, 3, 5, 6 permutations
+    [2, 3, 5, 6],
+    [3, 5, 6, 2],
+    [5, 6, 2, 3],
+    [6, 2, 3, 5],
+    // 4, 5, 7, 8 permutations
+    [4, 5, 7, 8],
+    [5, 7, 8, 4],
+    [7, 8, 4, 5],
+    [8, 4, 5, 7],
+    // 5, 6, 8, 9 permutations
+    [5, 6, 8, 9],
+    [6, 8, 9, 5],
+    [8, 9, 5, 6],
+    [9, 5, 6, 8]
+  ];
+
   List<List<int>> cornerCellPairs = [
     [1, 9],
     [3, 7],
@@ -187,6 +210,17 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
     return 0;
   }
 
+  // Iterates through list of potential two-rows-of-two connections. If first three
+  // cells are filled and fourth is empty, return fourth cell number
+  int identifyTwoRowsOfTwo() {
+    for (var block in twoRowsOfTwoConnections) {
+      if (board[block[0]].isNotEmpty && board[block[1]].isNotEmpty && board[block[2]].isNotEmpty && board[block[3]].isEmpty) {
+        return block[3];
+      }
+    }
+    return 0;
+  }
+
   // Iterates through list of corner cell pairs. If one corner is filled and the other
   // opposite corner cell is empty, returns that empty corner cell number
   int identifyOppositeCornerCell() {
@@ -215,7 +249,9 @@ class _NoughtsAndCrossesGameState extends State<NoughtsAndCrossesGame> {
       fillCell(identifyTwoInARow());
     }
     // Else if you can create two lines of two, play that move
-    // TODO
+    else if (identifyTwoRowsOfTwo() != 0) {
+      fillCell(identifyTwoRowsOfTwo());
+    }
     // Else if centre is free (i.e. cell 5), play there
     else if (getCellToken(5).isEmpty) {
       fillCell(5);
